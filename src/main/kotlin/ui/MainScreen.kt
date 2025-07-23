@@ -1,13 +1,13 @@
 package org.sprints.ui
 
-import jdk.jfr.internal.Repository
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.domain.models.Student
 import org.sprints.domain.usecases.GetAllStudentsUseCase
-
+import org.sprints.domain.usecases.UpdateStudentInfoUseCase
 
 class MainScreen {
     private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
+    private val updateStudentInfoUseCase = UpdateStudentInfoUseCase(StudentsRepository())
     fun home() {
         println("Welcome to Students Management System")
         if (!login()) return
@@ -29,7 +29,7 @@ class MainScreen {
             Options.ADD_STUDENT -> addNewStudent()
             Options.UPDATE_STUDENT -> updateStudents()
             Options.REMOVE_STUDENT -> removeStudents()
-            Options.FILTER_STUDENT -> filterStudents()
+//            Options.FILTER_STUDENT -> filterStudents()
             Options.GET_STUDENTS -> getStudents()
             Options.EXIT -> {
                 println("Exiting...")
@@ -39,8 +39,6 @@ class MainScreen {
             else -> println("Invalid option. Try again.")
 
         }
-
-
     }
 
     private fun login(): Boolean {
@@ -63,7 +61,7 @@ class MainScreen {
         val grade = readlnOrNull()
         println("Enter student GPA ▶ ")
         val gpa = readlnOrNull()
-        println("Enter student Name ▶ ")
+        println("Enter student Note ▶ ")
         val note = readlnOrNull()
         println("Enter student status ▶ ")
         val status = readlnOrNull()
@@ -142,7 +140,53 @@ class MainScreen {
     }
 
     private fun updateStudents() {
+        getStudents()
+        println("Enter student ID ▶ ")
+        val id = readlnOrNull()?.toIntOrNull()
 
+        if (id == null) {
+            println("Invalid ID")
+            return
+        }
+
+        // Find the student to show their current info
+        val studentToUpdate = StudentsRepository().findStudentById(id)
+        if (studentToUpdate == null) {
+            println("❌ Student with ID $id not found.")
+            return
+        }
+
+        println("Updating student: ${studentToUpdate.name}.")
+
+        print("Enter new name [${studentToUpdate.name}] ▶ ")
+        val newName = readlnOrNull().takeIf { !it.isNullOrBlank() } ?: studentToUpdate.name
+
+        print("Enter new grade [${studentToUpdate.grade}] ▶ ")
+        val newGrade = readlnOrNull().takeIf { !it.isNullOrBlank() } ?: studentToUpdate.grade
+
+        print("Enter new status [${studentToUpdate.status}] ▶ ")
+        val newStatus = readlnOrNull().takeIf { !it.isNullOrBlank() } ?: studentToUpdate.status
+
+        print("Enter new GPA [${studentToUpdate.gpa ?: "N/A"}] ▶ ")
+        val newGpa = readlnOrNull()?.toDoubleOrNull() ?: studentToUpdate.gpa
+
+        print("Enter new notes [${studentToUpdate.notes ?: "N/A"}] ▶ ")
+        val newNotes = readlnOrNull().takeIf { !it.isNullOrBlank() } ?: studentToUpdate.notes
+
+        val result = updateStudentInfoUseCase(
+            id = id,
+            newName = newName,
+            newGrade = newGrade,
+            newStatus = newStatus,
+            newGpa = newGpa,
+            newNotes = newNotes
+        )
+
+        result.onSuccess { updateStudents ->
+            println("Student updated successfully!")
+            println(updateStudents)
+        }.onFailure { error ->
+            println("Error updating student: ${error.message}")
+        }
     }
-
 }
