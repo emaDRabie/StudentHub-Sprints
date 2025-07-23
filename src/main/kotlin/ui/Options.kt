@@ -1,10 +1,10 @@
 package org.sprints.ui
 
 enum class Options(val value: Int) {
-    ADD_STUDENT(1),
-    REMOVE_STUDENT(2),
-    FIND_STUDENT(3),
-    UPDATE_STUDENT(4),
-    GET_STUDENTS(5),
-    EXIT(6),
+    ADD_STUDENT(0),
+    REMOVE_STUDENT(1),
+    FILTER_STUDENT(2),
+    UPDATE_STUDENT(3),
+    GET_STUDENTS(4),
+    EXIT(5),
 }
