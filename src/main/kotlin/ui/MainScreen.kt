@@ -4,10 +4,12 @@ import jdk.jfr.internal.Repository
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.domain.models.Student
 import org.sprints.domain.usecases.GetAllStudentsUseCase
+import org.sprints.domain.usecases.AddNewStudentUseCase
 
 
 class MainScreen {
     private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
+    private val addNewStudentUseCase = AddNewStudentUseCase(StudentsRepository())
     fun home() {
         println("Welcome to Students Management System")
         if (!login()) return
@@ -29,7 +31,7 @@ class MainScreen {
             Options.ADD_STUDENT -> addNewStudent()
             Options.UPDATE_STUDENT -> updateStudents()
             Options.REMOVE_STUDENT -> removeStudents()
-            Options.FILTER_STUDENT -> filterStudents()
+           // Options.FILTER_STUDENT -> filterStudents()
             Options.GET_STUDENTS -> getStudents()
             Options.EXIT -> {
                 println("Exiting...")
@@ -49,28 +51,61 @@ class MainScreen {
         println("Enter your password")
         val password = readlnOrNull()
         if (username == null || password == null) return false
-        // handle use case here
-
 
         println("Logged in as $username")
         return true
     }
 
     private fun addNewStudent(): Boolean {
-        println("Enter student Name ▶ ")
+        println("Enter student Name ")
         val name = readlnOrNull()
-        println("Enter student grade ▶ ")
+        if (name.isNullOrBlank()) {
+            println("Name is required.")
+            return false
+        }
+        println("Enter student grade")
         val grade = readlnOrNull()
-        println("Enter student GPA ▶ ")
-        val gpa = readlnOrNull()
-        println("Enter student Name ▶ ")
+        if (grade.isNullOrBlank()) {
+            println("Grade is required.")
+            return false
+        }
+        println("Enter student GPA ")
+        val gpaInput = readlnOrNull()
+        val gpa = gpaInput?.toDoubleOrNull()
+        if (gpaInput.isNullOrBlank()) {
+            println("GPA is required.")
+            return false
+        }
+        if (gpa == null) {
+            println("Invalid GPA. Please enter a valid number.")
+            return false
+        }
+        println("Enter student Note")
         val note = readlnOrNull()
-        println("Enter student status ▶ ")
+        println("Enter student status ")
         val status = readlnOrNull()
-        // handle add student use case here
-
-
-        return false
+        if (status.isNullOrBlank()) {
+            println("Status is required.")
+            return false
+        }
+        val students = getAllStudentsUseCase.getAllStudents()
+        val newId = (students.maxOfOrNull { it.id } ?: 0) + 1
+        val student = Student(
+            id = newId,
+            name = name,
+            grade = grade,
+            status = status,
+            gpa = gpa,
+            notes = note
+        )
+        val result = addNewStudentUseCase.isStudentAdded(student)
+        if (result) {
+            println("Student added successfully!")
+            getStudents()
+        } else {
+            println("Failed to add student.")
+        }
+        return result
     }
 
     private fun removeStudents(): Boolean {
