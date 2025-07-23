@@ -3,24 +3,30 @@ package org.sprints.ui
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.data.repository.UsersRepository
 import org.sprints.domain.models.Student
+import org.sprints.domain.usecases.FilterStudentsUseCase
 import org.sprints.domain.usecases.GetAllStudentsUseCase
 import org.sprints.domain.usecases.LoginUseCase
 
 import org.sprints.domain.usecases.UpdateStudentInfoUseCase
+import kotlin.math.max
+import kotlin.math.min
 
 class MainScreen {
     private var trials = 0
     private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
+    private val filterStudentsUseCase = FilterStudentsUseCase(StudentsRepository())
     private val loginCase = LoginUseCase(UsersRepository())
     private val updateStudentInfoUseCase = UpdateStudentInfoUseCase(StudentsRepository())
     fun home() {
         println("Welcome to Students Management System")
-        while(trials < 3){
-            if (!login()){
+        while (trials < 3) {
+            if (!login()) {
                 trials++
-                println("Wrong username or password \n" +
-                        "You have ${3 - trials} of your attempts!")
-            }else{
+                println(
+                    "Wrong username or password \n" +
+                            "You have ${3 - trials} of your attempts!"
+                )
+            } else {
                 println(
                     """
                     please select what are you want to do : 
@@ -63,10 +69,10 @@ class MainScreen {
         if (username == null || password == null) return false
         // handle use case here
 
-        if(loginCase.login(username, password)){
+        if (loginCase.login(username, password)) {
             println("Logged in as $username")
             return true
-        }else{
+        } else {
             return false
         }
     }
@@ -97,38 +103,97 @@ class MainScreen {
     }
 
     private fun filterStudents(): List<Student> {
+        val filterStudentsUseCase = FilterStudentsUseCase(StudentsRepository())
         println(
             """
-            please select what are you want to do : 
-            0 - filter by name
-            1 - filter by grade
-            2 - filter by status            
-            3 - Back
+        Please select a filtering criteria ▶
+        0 ▶ Filter by name
+        1 ▶ Filter by grade
+        2 ▶ Filter by status
+        3 ▶ Filter by GPA: e.g. (3 ≤..≤ 4)
+        4 ▶ Back ↺
         """.trimIndent()
         )
-        val filterOp: Int = readlnOrNull()!!.toInt()
+        val filterOp = readlnOrNull()?.toIntOrNull()
+        if (filterOp == null) {
+            println("Invalid input. Returning to home...")
+            return emptyList()
+        }
 
-        when (filterOp) {
+        val filteredStudents = when (filterOp) {
             0 -> {
-                println("Enter student's name: ")
+                print("Enter student's name ▶ ")
                 val name = readlnOrNull()
-                // handle filter use case here
+                filterStudentsUseCase.filterByName(name)
             }
 
             1 -> {
-                println("Enter student's grade: ")
+                println("Enter student's grade ▶ ")
                 val grade = readlnOrNull()
-                // handle filter use case here
+                filterStudentsUseCase.filterByGrade(grade)
             }
 
             2 -> {
-                println("Enter student's status: ")
+                println("Enter student's status ▶ ")
                 val status = readlnOrNull()
-                // handle filter use case here
+                filterStudentsUseCase.filterByStatus(status)
+            }
+
+            3 -> {
+                println("Enter minimum GPA: ")
+                val minGPA = readlnOrNull()?.toDoubleOrNull()
+                if (minGPA == null) {
+                    println("Invalid minimum GPA. Returning to home...")
+                    return emptyList()
+                }
+                println("Enter maximum GPA: ")
+                val maxGPA = readlnOrNull()?.toDoubleOrNull()
+                if (maxGPA == null) {
+                    println("Invalid maximum GPA. Returning to home...")
+                    return emptyList()
+                }
+                filterStudentsUseCase.filterByGPA(min(maxGPA, minGPA), max(maxGPA, minGPA))
+            }
+
+            4 -> {
+                println("Returning to home ↺")
+                return emptyList()
+            }
+
+            else -> {
+                println("Invalid choice :(")
+                return emptyList()
             }
         }
 
-        return listOf()
+        if (filteredStudents.isEmpty()) {
+            println("No students found matching the criteria.")
+        } else {
+            val idWidth = 5
+            val nameWidth = 20
+            val gradeWidth = 16
+            val gpaWidth = 12
+            val statusWidth = 14
+            val notesWidth = 30
+            println(
+                String.format(
+                    "%-${idWidth}s %-${nameWidth}s %-${gradeWidth}s %-${gpaWidth}s %-${statusWidth}s %-${notesWidth}s",
+                    "ID", "Name", "Grade", "GPA", "Status", "Notes"
+                )
+            )
+            println("-".repeat(idWidth + nameWidth + gradeWidth + gpaWidth + statusWidth + notesWidth + 5))
+
+            filteredStudents.forEach {
+                println(
+                    String.format(
+                        "%-${idWidth}d %-${nameWidth}s %-${gradeWidth}s %-${gpaWidth}.2f %-${statusWidth}s %-${notesWidth}s",
+                        it.id, it.name, it.grade, it.gpa ?: 0.0, it.status, it.notes ?: ""
+                    )
+                )
+            }
+        }
+
+        return filteredStudents
     }
 
     private fun getStudents() {

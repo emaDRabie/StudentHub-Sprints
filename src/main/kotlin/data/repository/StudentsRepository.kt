@@ -37,15 +37,13 @@ class StudentsRepository : StudentsRepository {
     override fun findStudentById(id: Int): Student? {
         return students.find { student -> student.id == id }
     }
-
+    // to apply multiple params filtering ...
     override fun filterStudent(name: String?, status: String?, grade: String?): List<Student> {
-        return if (name != null) {
-            students.filter { student -> student.name.contains(name, true) }
-        } else if (status != null) {
-            students.filter { student -> student.name.contains(status, true) }
-        } else if (grade != null) {
-            students.filter { student -> student.name.contains(grade, true) }
-        } else listOf()
+        return students.filter { student ->
+            (name?.let { student.name.contains(it, ignoreCase = true) } ?: true) &&
+                    (status?.let { student.status.equals(it, ignoreCase = true) } ?: true) &&
+                    (grade?.let { student.grade.equals(it, ignoreCase = true) } ?: true)
+        }
     }
 
     override fun filterStudentsByGPA(minGPA: Double, maxGPA: Double): List<Student> {
