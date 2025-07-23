@@ -1,5 +1,7 @@
 package org.sprints
 
+import org.sprints.ui.MainScreen
+
 fun main() {
-    println("Hello World!")
+    MainScreen().home()
 }
