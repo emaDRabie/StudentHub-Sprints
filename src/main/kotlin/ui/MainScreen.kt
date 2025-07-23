@@ -1,17 +1,19 @@
 package org.sprints.ui
 
-import jdk.jfr.internal.Repository
+import jdk.jfr.*
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.data.repository.UsersRepository
 import org.sprints.domain.models.Student
 import org.sprints.domain.usecases.GetAllStudentsUseCase
 import org.sprints.domain.usecases.LoginUseCase
+import org.sprints.domain.usecases.SignupUseCase
 
 
 class MainScreen {
     private var trials = 0
     private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
     private val loginCase = LoginUseCase(UsersRepository())
+    private val signupCase = SignupUseCase(UsersRepository())
     fun home() {
         println("Welcome to Students Management System")
         while(trials < 3){
@@ -19,6 +21,19 @@ class MainScreen {
                 trials++
                 println("Wrong username or password \n" +
                         "You have ${3 - trials} of your attempts!")
+                println("1- Try again!    2- Sign Up")
+                val choice = readlnOrNull()
+                if(choice == "1"){
+                    continue
+                }else if(choice == "2"){
+                    if(!signup()){
+                        println("Sign Up failed")
+                        println("Username and password must be unique")
+                    }
+                }
+                else{
+                    println("Invalid choice")
+                }
             }else{
                 println(
                     """
@@ -52,6 +67,20 @@ class MainScreen {
 
         }
 
+    }
+
+    private fun signup() : Boolean{
+        println("please enter your username")
+        val username = readlnOrNull()
+        println("Enter your password")
+        val password = readlnOrNull()
+        if (username == null || password == null) return false
+        if(signupCase.signup(username, password)){
+            println("Signed up successfully")
+            return true
+        }else{
+            return false
+        }
     }
 
     private fun login(): Boolean {
