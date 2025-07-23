@@ -1,6 +1,5 @@
 package org.sprints.ui
 
-import jdk.jfr.internal.Repository
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.data.repository.UsersRepository
 import org.sprints.domain.models.Student
