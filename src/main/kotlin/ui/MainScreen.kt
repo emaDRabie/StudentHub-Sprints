@@ -103,7 +103,6 @@ class MainScreen {
     }
 
     private fun filterStudents(): List<Student> {
-        val filterStudentsUseCase = FilterStudentsUseCase(StudentsRepository())
         println(
             """
         Please select a filtering criteria ▶
