@@ -2,44 +2,55 @@ package org.sprints.ui
 
 import jdk.jfr.internal.Repository
 import org.sprints.data.repository.StudentsRepository
+import org.sprints.data.repository.UsersRepository
 import org.sprints.domain.models.Student
 import org.sprints.domain.usecases.GetAllStudentsUseCase
+import org.sprints.domain.usecases.LoginUseCase
 
 
 class MainScreen {
+    private var trials = 0
     private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
+    private val loginCase = LoginUseCase(UsersRepository())
     fun home() {
         println("Welcome to Students Management System")
-        if (!login()) return
-        println(
-            """
-            please select what are you want to do : 
-            0 - Add New Student
-            1 - Remove New Student
-            2 - Search Students
-            3 - Update Student Info
-            4 - Show all Students
-            5 - Exit
-        """.trimIndent()
-        )
-        val input = readlnOrNull()?.toIntOrNull()
-        val option = input?.let { Options.entries.getOrNull(it) }
+        while(trials < 3){
+            if (!login()){
+                trials++
+                println("Wrong username or password \n" +
+                        "You have ${3 - trials} of your attempts!")
+            }else{
+                println(
+                    """
+                    please select what are you want to do : 
+                    0 - Add New Student
+                    1 - Remove New Student
+                    2 - Search Students
+                    3 - Update Student Info
+                    4 - Show all Students
+                    5 - Exit
+                    """.trimIndent()
+                )
+                val input = readlnOrNull()?.toIntOrNull()
+                val option = input?.let { Options.entries.getOrNull(it) }
 
-        when (option) {
-            Options.ADD_STUDENT -> addNewStudent()
-            Options.UPDATE_STUDENT -> updateStudents()
-            Options.REMOVE_STUDENT -> removeStudents()
-            Options.FILTER_STUDENT -> filterStudents()
-            Options.GET_STUDENTS -> getStudents()
-            Options.EXIT -> {
-                println("Exiting...")
-                return
+                when (option) {
+                    Options.ADD_STUDENT -> addNewStudent()
+                    Options.UPDATE_STUDENT -> updateStudents()
+                    Options.REMOVE_STUDENT -> removeStudents()
+                    Options.FIND_STUDENT -> filterStudents()
+                    Options.GET_STUDENTS -> getStudents()
+                    Options.EXIT -> {
+                        println("Exiting...")
+                        return
+                    }
+
+                    else -> println("Invalid option. Try again.")
+
+                }
             }
 
-            else -> println("Invalid option. Try again.")
-
         }
-
 
     }
 
@@ -49,11 +60,13 @@ class MainScreen {
         println("Enter your password")
         val password = readlnOrNull()
         if (username == null || password == null) return false
-        // handle use case here
 
-
-        println("Logged in as $username")
-        return true
+        if(loginCase.login(username, password)){
+            println("Logged in as $username")
+            return true
+        }else{
+            return false
+        }
     }
 
     private fun addNewStudent(): Boolean {
