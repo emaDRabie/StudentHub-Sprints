@@ -21,8 +21,9 @@ class MainScreen {
     private val signupCase = SignupUseCase(UsersRepository())
     fun home() {
         println("Welcome to Students Management System")
+        var signed = false
         while(trials < 3){
-            if (!login()){
+            if (!signed && !login()){
                 trials++
                 println("Wrong username or password \n" +
                         "You have ${3 - trials} of your attempts!")
@@ -34,6 +35,8 @@ class MainScreen {
                     if(!signup()){
                         println("Sign Up failed")
                         println("Username and password must be unique")
+                    }else{
+                        signed = true
                     }
                 }
                 else{
