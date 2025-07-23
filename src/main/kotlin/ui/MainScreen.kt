@@ -1,6 +1,5 @@
 package org.sprints.ui
 
-import jdk.jfr.*
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.data.repository.UsersRepository
 import org.sprints.domain.models.Student
@@ -22,14 +21,9 @@ class MainScreen {
     private val signupCase = SignupUseCase(UsersRepository())
     fun home() {
         println("Welcome to Students Management System")
-        while (trials < 3) {
-            if (!login()) {
+        while(trials < 3){
+            if (!login()){
                 trials++
-                println(
-                    "Wrong username or password \n" +
-                            "You have ${3 - trials} of your attempts!"
-                )
-            } else {
                 println("Wrong username or password \n" +
                         "You have ${3 - trials} of your attempts!")
                 println("1- Try again!    2- Sign Up")
@@ -46,34 +40,37 @@ class MainScreen {
                     println("Invalid choice")
                 }
             }else{
-                println(
-                    """
+                while (true){
+                    println(
+                        """
                     please select what are you want to do : 
                     0 - Add New Student
                     1 - Remove New Student
                     2 - Search Students
                     3 - Update Student Info
                     4 - Show all Students
-                    5 - Exit
+                    5 - Logout
                     """.trimIndent()
-                )
-                val input = readlnOrNull()?.toIntOrNull()
-                val option = input?.let { Options.entries.getOrNull(it) }
+                    )
+                    val input = readlnOrNull()?.toIntOrNull()
+                    val option = input?.let { Options.entries.getOrNull(it) }
 
-                when (option) {
-                    Options.ADD_STUDENT -> addNewStudent()
-                    Options.UPDATE_STUDENT -> updateStudents()
-                    Options.REMOVE_STUDENT -> removeStudents()
-                    Options.FILTER_STUDENT -> filterStudents()
-                    Options.GET_STUDENTS -> getStudents()
-                    Options.EXIT -> {
-                        println("Exiting...")
-                        return
+                    when (option) {
+                        Options.ADD_STUDENT -> addNewStudent()
+                        Options.UPDATE_STUDENT -> updateStudents()
+                        Options.REMOVE_STUDENT -> removeStudents()
+                        Options.FILTER_STUDENT -> filterStudents()
+                        Options.GET_STUDENTS -> getStudents()
+                        Options.EXIT -> {
+                            println("logout...")
+                            break
+                        }
+
+                        else -> println("Invalid option. Try again.")
+
                     }
-
-                    else -> println("Invalid option. Try again.")
-
                 }
+
             }
 
         }
