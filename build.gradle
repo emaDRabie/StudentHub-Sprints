@@ -1,5 +1,6 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '2.1.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10'
 }
 
 group = 'org.sprints'
@@ -10,9 +11,23 @@ repositories {
 }
 
 dependencies {
+    
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
 
-test {
-    useJUnitPlatform()
+// ✅ Use Kotlin JVM 17 for compatibility
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+// ✅ Correct Toolchain config — let Gradle find JDK 17 via JAVA_HOME or registry
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+        vendor.set(JvmVendorSpec.ADOPTIUM) // Optional: specify vendor if needed
+    }
 }

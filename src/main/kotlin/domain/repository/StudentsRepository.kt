@@ -4,7 +4,7 @@ import org.sprints.domain.models.Student
 
 interface StudentsRepository {
     fun addStudent(student: Student) : Boolean
-    fun removeStudent(studentID: Int) : Boolean
+    fun removeStudent(studentID: Int?) : Boolean
     fun findStudentById(id: Int) : Student?
 
     fun filterStudent(name: String? , status: String? , grade: String?) : List<Student>
