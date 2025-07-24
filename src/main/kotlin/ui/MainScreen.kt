@@ -5,6 +5,8 @@ import org.sprints.data.repository.UsersRepository
 import org.sprints.domain.models.Student
 import org.sprints.domain.usecases.FilterStudentsUseCase
 import org.sprints.domain.usecases.GetAllStudentsUseCase
+import org.sprints.domain.usecases.AddNewStudentUseCase
+import org.sprints.domain.usecases.DeleteStudentUseCase
 import org.sprints.domain.usecases.LoginUseCase
 import org.sprints.domain.usecases.SignupUseCase
 
@@ -21,6 +23,9 @@ class MainScreen {
     private val addNewStudentUseCase = AddNewStudentUseCase(StudentsRepository())
 
     private val signupCase = SignupUseCase(UsersRepository())
+    private val deletestudentusecase = DeleteStudentUseCase(StudentsRepository())
+
+
     fun home() {
         println("Welcome to Students Management System")
         var signed = false
@@ -60,40 +65,22 @@ class MainScreen {
                     val input = readlnOrNull()?.toIntOrNull()
                     val option = input?.let { Options.entries.getOrNull(it) }
 
-                    when (option) {
-                        Options.ADD_STUDENT -> addNewStudent()
-                        Options.UPDATE_STUDENT -> updateStudents()
-                        Options.REMOVE_STUDENT -> removeStudents()
-                        Options.FILTER_STUDENT -> filterStudents()
-                        Options.GET_STUDENTS -> getStudents()
-                        Options.EXIT -> {
-                            println("logout...")
-                            break
-                        }
-
-                        else -> println("Invalid option. Try again.")
-
-                    }
-                }
-
+        when (option) {
+            Options.ADD_STUDENT -> addNewStudent()
+            Options.UPDATE_STUDENT -> updateStudents()
+            Options.REMOVE_STUDENT -> removeStudents()
+            Options.FILTER_STUDENT -> filterStudents()
+            Options.GET_STUDENTS -> getStudents()
+            Options.EXIT -> {
+                println("Exiting...")
+                return
             }
 
+            else -> println("Invalid option. Try again.")
+
         }
 
-    }
 
-    private fun signup() : Boolean{
-        println("please enter your username")
-        val username = readlnOrNull()
-        println("Enter your password")
-        val password = readlnOrNull()
-        if (username == null || password == null) return false
-        if(signupCase.signup(username, password)){
-            println("Signed up successfully")
-            return true
-        }else{
-            return false
-        }
     }
 
     private fun login(): Boolean {
@@ -102,14 +89,9 @@ class MainScreen {
         println("Enter your password")
         val password = readlnOrNull()
         if (username == null || password == null) return false
-        // handle use case here
 
-        if (loginCase.login(username, password)) {
-            println("Logged in as $username")
-            return true
-        } else {
-            return false
-        }
+        println("Logged in as $username")
+        return true
     }
 
     private fun addNewStudent(): Boolean {
@@ -164,11 +146,16 @@ class MainScreen {
         return result
     }
 
-
     private fun removeStudents(): Boolean {
         // show all students
         print("Enter student ID ▶ ")
         val id = readlnOrNull()?.toIntOrNull()
+        val deleteid = deletestudentusecase.deleteById(id)
+        if (deleteid) {
+            println("Student deleted successfully!")
+        } else {
+            println("student not found")
+        }
 
         return false
     }

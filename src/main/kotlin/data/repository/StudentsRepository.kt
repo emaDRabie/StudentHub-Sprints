@@ -28,7 +28,7 @@ class StudentsRepository : StudentsRepository {
         return students.add(student)
     }
 
-    override fun removeStudent(studentID: Int): Boolean {
+    override fun removeStudent(studentID: Int?): Boolean {
         return students.removeIf { student ->
             student.id == studentID
         }
