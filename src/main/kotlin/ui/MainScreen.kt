@@ -73,7 +73,7 @@ class MainScreen {
                         Options.GET_STUDENTS -> getStudents()
                         Options.EXIT -> {
                             println("logout...")
-                            break
+                            return
                         }
 
                         else -> println("Invalid option. Try again.")
