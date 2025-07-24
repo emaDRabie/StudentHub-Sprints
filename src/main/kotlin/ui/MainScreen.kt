@@ -1,15 +1,18 @@
 package org.sprints.ui
 
-import jdk.jfr.internal.Repository
 import org.sprints.data.repository.StudentsRepository
 import org.sprints.domain.models.Student
 import org.sprints.domain.usecases.GetAllStudentsUseCase
 import org.sprints.domain.usecases.AddNewStudentUseCase
+import org.sprints.domain.usecases.DeleteStudentUseCase
 
 
 class MainScreen {
     private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
     private val addNewStudentUseCase = AddNewStudentUseCase(StudentsRepository())
+    private val deletestudentusecase = DeleteStudentUseCase(StudentsRepository())
+
+
     fun home() {
         println("Welcome to Students Management System")
         if (!login()) return
@@ -112,6 +115,12 @@ class MainScreen {
         // show all students
         print("Enter student ID ▶ ")
         val id = readlnOrNull()?.toIntOrNull()
+        val deleteid = deletestudentusecase.deleteById(id)
+        if (deleteid) {
+            println("Student deleted successfully!")
+        } else {
+            println("student not found")
+        }
 
         return false
     }
