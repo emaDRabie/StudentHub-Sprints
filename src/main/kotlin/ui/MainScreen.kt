@@ -15,16 +15,16 @@ import kotlin.math.max
 import kotlin.math.min
 
 class MainScreen {
+    private val studentRepository: StudentsRepository = StudentsRepository()
+    private val usersRepository: UsersRepository = UsersRepository()
     private var trials = 0
-    private val getAllStudentsUseCase = GetAllStudentsUseCase(StudentsRepository())
-    private val filterStudentsUseCase = FilterStudentsUseCase(StudentsRepository())
-    private val loginCase = LoginUseCase(UsersRepository())
-    private val updateStudentInfoUseCase = UpdateStudentInfoUseCase(StudentsRepository())
-    private val addNewStudentUseCase = AddNewStudentUseCase(StudentsRepository())
-
-    private val signupCase = SignupUseCase(UsersRepository())
-    private val deletestudentusecase = DeleteStudentUseCase(StudentsRepository())
-
+    private val getAllStudentsUseCase = GetAllStudentsUseCase(studentRepository)
+    private val filterStudentsUseCase = FilterStudentsUseCase(studentRepository)
+    private val loginCase = LoginUseCase(usersRepository)
+    private val updateStudentInfoUseCase = UpdateStudentInfoUseCase(studentRepository)
+    private val addNewStudentUseCase = AddNewStudentUseCase(studentRepository)
+    private val signupCase = SignupUseCase(usersRepository)
+    private val deleteStudentUseCase = DeleteStudentUseCase(studentRepository)
 
     fun home() {
         println("Welcome to Students Management System")
@@ -65,22 +65,40 @@ class MainScreen {
                     val input = readlnOrNull()?.toIntOrNull()
                     val option = input?.let { Options.entries.getOrNull(it) }
 
-        when (option) {
-            Options.ADD_STUDENT -> addNewStudent()
-            Options.UPDATE_STUDENT -> updateStudents()
-            Options.REMOVE_STUDENT -> removeStudents()
-            Options.FILTER_STUDENT -> filterStudents()
-            Options.GET_STUDENTS -> getStudents()
-            Options.EXIT -> {
-                println("Exiting...")
-                return
-            }
+                    when (option) {
+                        Options.ADD_STUDENT -> addNewStudent()
+                        Options.UPDATE_STUDENT -> updateStudents()
+                        Options.REMOVE_STUDENT -> removeStudents()
+                        Options.FILTER_STUDENT -> filterStudents()
+                        Options.GET_STUDENTS -> getStudents()
+                        Options.EXIT -> {
+                            println("logout...")
+                            break
+                        }
 
-            else -> println("Invalid option. Try again.")
+                        else -> println("Invalid option. Try again.")
+
+                    }
+                }
+
+            }
 
         }
 
+    }
 
+    private fun signup() : Boolean{
+        println("please enter your username")
+        val username = readlnOrNull()
+        println("Enter your password")
+        val password = readlnOrNull()
+        if (username == null || password == null) return false
+        if(signupCase.signup(username, password)){
+            println("Signed up successfully")
+            return true
+        }else{
+            return false
+        }
     }
 
     private fun login(): Boolean {
@@ -89,9 +107,14 @@ class MainScreen {
         println("Enter your password")
         val password = readlnOrNull()
         if (username == null || password == null) return false
+        // handle use case here
 
-        println("Logged in as $username")
-        return true
+        if (loginCase.login(username, password)) {
+            println("Logged in as $username")
+            return true
+        } else {
+            return false
+        }
     }
 
     private fun addNewStudent(): Boolean {
@@ -146,11 +169,13 @@ class MainScreen {
         return result
     }
 
+
     private fun removeStudents(): Boolean {
+        getStudents()
         // show all students
         print("Enter student ID ▶ ")
         val id = readlnOrNull()?.toIntOrNull()
-        val deleteid = deletestudentusecase.deleteById(id)
+        val deleteid = deleteStudentUseCase.deleteById(id)
         if (deleteid) {
             println("Student deleted successfully!")
         } else {

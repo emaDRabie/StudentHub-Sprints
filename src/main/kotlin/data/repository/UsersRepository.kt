@@ -4,7 +4,9 @@ import org.sprints.domain.models.User
 import org.sprints.domain.repository.UsersRepository
 
 class UsersRepository: UsersRepository{
-    val users = UserStorage.getUsers()
+    companion object{
+        val users = UserStorage.getUsers()
+    }
 
     override fun login(username: String, password: String): Boolean {
         val admin: User? = users.find { admin -> (admin.password == password && admin.username == username) }
