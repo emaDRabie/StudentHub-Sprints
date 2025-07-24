@@ -18,6 +18,8 @@ class MainScreen {
     private val filterStudentsUseCase = FilterStudentsUseCase(StudentsRepository())
     private val loginCase = LoginUseCase(UsersRepository())
     private val updateStudentInfoUseCase = UpdateStudentInfoUseCase(StudentsRepository())
+    private val addNewStudentUseCase = AddNewStudentUseCase(StudentsRepository())
+
     private val signupCase = SignupUseCase(UsersRepository())
     fun home() {
         println("Welcome to Students Management System")
@@ -111,21 +113,57 @@ class MainScreen {
     }
 
     private fun addNewStudent(): Boolean {
-        println("Enter student Name ▶ ")
+        println("Enter student Name ")
         val name = readlnOrNull()
-        println("Enter student grade ▶ ")
+        if (name.isNullOrBlank()) {
+            println("Name is required.")
+            return false
+        }
+        println("Enter student grade")
         val grade = readlnOrNull()
-        println("Enter student GPA ▶ ")
-        val gpa = readlnOrNull()
-        println("Enter student Note ▶ ")
+        if (grade.isNullOrBlank()) {
+            println("Grade is required.")
+            return false
+        }
+        println("Enter student GPA ")
+        val gpaInput = readlnOrNull()
+        val gpa = gpaInput?.toDoubleOrNull()
+        if (gpaInput.isNullOrBlank()) {
+            println("GPA is required.")
+            return false
+        }
+        if (gpa == null) {
+            println("Invalid GPA. Please enter a valid number.")
+            return false
+        }
+        println("Enter student Note")
         val note = readlnOrNull()
-        println("Enter student status ▶ ")
+        println("Enter student status ")
         val status = readlnOrNull()
-        // handle add student use case here
-
-
-        return false
+        if (status.isNullOrBlank()) {
+            println("Status is required.")
+            return false
+        }
+        val students = getAllStudentsUseCase.getAllStudents()
+        val newId = (students.maxOfOrNull { it.id } ?: 0) + 1
+        val student = Student(
+            id = newId,
+            name = name,
+            grade = grade,
+            status = status,
+            gpa = gpa,
+            notes = note
+        )
+        val result = addNewStudentUseCase.isStudentAdded(student)
+        if (result) {
+            println("Student added successfully!")
+            getStudents()
+        } else {
+            println("Failed to add student.")
+        }
+        return result
     }
+
 
     private fun removeStudents(): Boolean {
         // show all students
